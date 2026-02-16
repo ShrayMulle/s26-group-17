@@ -1,35 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import Button from './components/ui/Button';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const handleClick = () => {
+    alert('Button works! 🎉');
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-lg shadow-xl p-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Welcome to Your Project! 🚀
+          </h1>
+          <p className="text-gray-600 mb-8">
+            Vite + React + TypeScript + Tailwind CSS
+          </p>
 
-export default App
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Buttons</h2>
+              <div className="flex flex-wrap gap-4">
+                <Button variant="primary" onClick={handleClick}>
+                  Primary
+                </Button>
+                <Button variant="secondary" onClick={handleClick}>
+                  Secondary
+                </Button>
+                <Button variant="danger" onClick={handleClick}>
+                  Danger
+                </Button>
+                <Button size="sm">Small</Button>
+                <Button size="lg">Large</Button>
+                <Button disabled>Disabled</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
