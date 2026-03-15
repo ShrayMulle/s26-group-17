@@ -77,26 +77,18 @@ export default function KanbanBoard() {
     if (!over) return;
 
     const activeTaskId = active.id as string;
-    const overColumnId = over.id as string;
+    const sourceColumn = columns.find(col => col.tasks.some(t => t.id === activeTaskId));
+    if (!sourceColumn) return;
 
-    let sourceColumn: Column | undefined;
-    let task: Task | undefined;
+    const task = sourceColumn.tasks.find(t => t.id === activeTaskId);
+    if (!task) return;
 
-    for (const col of columns) {
-      const foundTask = col.tasks.find(t => t.id === activeTaskId);
-      if (foundTask) {
-        sourceColumn = col;
-        task = foundTask;
-        break;
-      }
-    }
+    const overId = over.id as string;
+    const destColumn =
+      columns.find(col => col.id === overId) ||
+      columns.find(col => col.tasks.some(t => t.id === overId));
 
-    if (!sourceColumn || !task) return;
-
-    const destColumn = columns.find(col => col.id === overColumnId);
-    if (!destColumn) return;
-
-    if (sourceColumn.id === destColumn.id) return;
+    if (!destColumn || sourceColumn.id === destColumn.id) return;
 
     setColumns(prev => prev.map(col => {
       if (col.id === sourceColumn!.id) {
@@ -119,12 +111,25 @@ export default function KanbanBoard() {
     alert('Add task modal coming soon!');
   };
 
+  const totalTasks = columns.reduce((count, column) => count + column.tasks.length, 0);
+  const doneTasks = columns.find(col => col.id === 'done')?.tasks.length ?? 0;
+  const completionRate = totalTasks === 0 ? 0 : Math.round((doneTasks / totalTasks) * 100);
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">CS 3500 - Object-Oriented Design</h2>
-        <Button onClick={handleAddTask}>
-          <Plus className="w-4 h-4 mr-2" />
+    <div className="space-y-5">
+      <div className="flex flex-col gap-4 rounded-2xl border border-sky-200/80 bg-gradient-to-r from-sky-100/85 via-cyan-100/75 to-emerald-100/75 p-4 shadow-[0_8px_22px_rgba(2,132,199,0.10)] sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-sky-700">Course Board</p>
+          <h2 className="mt-1 text-xl font-semibold text-slate-900">CS 3500 - Object-Oriented Design</h2>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-700">
+            <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-sky-800">{totalTasks} Total Tasks</span>
+            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-emerald-800">{doneTasks} Completed</span>
+            <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-amber-800">{completionRate}% Completion</span>
+          </div>
+        </div>
+
+        <Button onClick={handleAddTask} className="inline-flex items-center gap-2 shadow-sm">
+          <Plus className="h-4 w-4" />
           Add Task
         </Button>
       </div>
@@ -135,13 +140,15 @@ export default function KanbanBoard() {
         onDragStart={handleDragStart} 
         onDragEnd={handleDragEnd}
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {columns.map(column => (
-            <KanbanColumn
-              key={column.id}
-              column={column}
-            />
-          ))}
+        <div className="overflow-hidden rounded-2xl border border-sky-100/70 bg-gradient-to-r from-sky-100/45 via-cyan-100/35 to-emerald-100/35 py-3">
+          <div className="grid min-h-[30rem] grid-flow-col auto-cols-[minmax(18rem,1fr)] gap-5 overflow-x-auto px-0 pt-1 pb-0">
+            {columns.map(column => (
+              <KanbanColumn
+                key={column.id}
+                column={column}
+              />
+            ))}
+          </div>
         </div>
 
         <DragOverlay>
