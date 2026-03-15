@@ -15,7 +15,7 @@ export default function Button({
   className = '',
   ...props 
 }: ButtonProps) {
-  const baseStyles = "inline-flex items-center justify-center rounded-xl border font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
+  const baseStyles = "inline-flex items-center justify-center gap-2 whitespace-nowrap text-center rounded-md border font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
   
   const variants = {
     primary: "border-sky-400/40 bg-gradient-to-r from-sky-500 to-cyan-500 text-white shadow-sm hover:from-sky-500 hover:to-cyan-600 hover:shadow focus-visible:ring-sky-300",
@@ -24,9 +24,9 @@ export default function Button({
   };
 
   const sizes = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2",
-    lg: "px-6 py-3 text-lg"
+    sm: "pl-5 pr-5 py-2 text-sm",
+    md: "pl-6 pr-6 py-2",
+    lg: "pl-7 pr-7 py-3 text-lg"
   };
 
   return (

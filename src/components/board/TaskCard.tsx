@@ -48,7 +48,7 @@ export default function TaskCard({ task, isDragging = false }: TaskCardProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`cursor-grab rounded-2xl border border-sky-100/80 bg-gradient-to-br from-sky-50 to-cyan-50 p-4 shadow-[0_4px_12px_rgba(15,23,42,0.08)] transition-all duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-[0_8px_18px_rgba(2,132,199,0.15)] ${
+      className={`cursor-grab rounded-lg border border-sky-100/80 bg-gradient-to-br from-sky-50 to-cyan-50 p-4 shadow-[0_4px_12px_rgba(15,23,42,0.08)] transition-all duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-[0_8px_18px_rgba(2,132,199,0.15)] ${
         isDragging ? 'rotate-2 border-sky-200 shadow-[0_14px_30px_rgba(2,132,199,0.20)]' : ''
       }`}
     >
@@ -58,7 +58,7 @@ export default function TaskCard({ task, isDragging = false }: TaskCardProps) {
 
       <div className="flex items-center justify-between border-t border-sky-100/80 pt-3 text-xs font-medium sm:text-sm">
         {task.dueDate && (
-          <div className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 ${
+          <div className={`inline-flex min-w-[5rem] items-center justify-center gap-1.5 rounded-full py-1 whitespace-nowrap ${
             isOverdue(task.dueDate)
               ? 'bg-rose-100 text-rose-700'
               : 'bg-cyan-100 text-cyan-800'
@@ -68,7 +68,7 @@ export default function TaskCard({ task, isDragging = false }: TaskCardProps) {
           </div>
         )}
 
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-100 to-yellow-100 px-2.5 py-1 text-amber-800">
+        <div className="inline-flex min-w-[5rem] items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-amber-100 to-yellow-100 py-1 whitespace-nowrap text-amber-800">
           <Star className="h-3.5 w-3.5 fill-current" />
           <span className="font-medium">{task.xp} XP</span>
         </div>

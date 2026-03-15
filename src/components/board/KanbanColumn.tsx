@@ -59,10 +59,10 @@ export default function KanbanColumn({ column }: KanbanColumnProps) {
   };
 
   return (
-    <div className={`flex h-full min-h-[30rem] min-w-[18rem] flex-col rounded-2xl border shadow-sm ${theme.container}`}>
+    <div className={`flex h-full min-h-[30rem] min-w-[18rem] flex-col rounded-lg border shadow-sm ${theme.container}`}>
       <div className={`flex items-center justify-between border-b px-4 py-3 ${theme.header}`}>
         <h3 className={`text-sm font-semibold uppercase tracking-[0.12em] ${theme.title}`}>{column.title}</h3>
-        <span className={`inline-flex min-w-[1.75rem] items-center justify-center rounded-full px-2 py-1 text-xs font-semibold ${theme.count}`}>
+        <span className={`inline-flex min-w-[3rem] items-center justify-center rounded-full pl-4 pr-4 py-1 text-xs font-semibold ${theme.count}`}>
           {column.tasks.length}
         </span>
       </div>
@@ -73,7 +73,7 @@ export default function KanbanColumn({ column }: KanbanColumnProps) {
             <TaskCard key={task.id} task={task} />
           ))}
           {column.tasks.length === 0 && (
-            <div className={`mt-1 flex flex-1 items-center justify-center rounded-xl border border-dashed px-4 py-8 text-center text-sm ${theme.empty}`}>
+            <div className={`mt-1 flex flex-1 items-center justify-center rounded-md border border-dashed px-4 py-8 text-center text-sm ${theme.empty}`}>
               Drop tasks in this column
             </div>
           )}

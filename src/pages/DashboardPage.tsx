@@ -22,7 +22,7 @@ export default function DashboardPage() {
         <header className="border-b border-sky-300/40 bg-gradient-to-r from-sky-50/80 via-cyan-50/70 to-emerald-50/70 backdrop-blur">
           <div className="flex w-full items-center justify-between px-8 py-4 sm:px-10 lg:px-16 xl:px-24">
             <div className="flex items-center gap-3 pr-2 sm:pr-4 lg:pr-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-cyan-500 text-white shadow-sm">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-cyan-500 text-white shadow-sm">
                 <GraduationCap className="h-5 w-5" />
               </div>
               <div>
@@ -32,7 +32,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="rounded-xl border border-sky-200/70 bg-sky-50/85 px-3 py-2 text-right shadow-sm">
+              <div className="rounded-md border border-sky-200/70 bg-sky-50/85 px-3 py-2 text-right shadow-sm">
                 <p className="text-sm font-medium text-slate-900">Demo User</p>
                 <p className="text-xs text-slate-500">Level 1 • 0 XP</p>
               </div>
@@ -40,7 +40,7 @@ export default function DashboardPage() {
                 variant="secondary"
                 size="sm"
                 onClick={handleLogout}
-                className="inline-flex items-center gap-2"
+                className="inline-flex min-w-[6rem] items-center justify-center gap-2 px-0"
               >
                 <LogOut className="h-4 w-4" />
                 Logout
@@ -54,7 +54,7 @@ export default function DashboardPage() {
             <div className="flex gap-3 py-3">
               <button
                 onClick={() => setActiveTab('board')}
-                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                className={`inline-flex min-h-10 min-w-[9.5rem] items-center justify-center gap-2 rounded-full border text-sm font-medium transition-colors sm:min-w-[11rem] ${
                   activeTab === 'board'
                     ? 'border-sky-500/40 bg-gradient-to-r from-sky-500 to-cyan-500 text-white shadow-sm'
                     : 'border-sky-200/70 bg-sky-50/80 text-sky-800 hover:border-sky-300 hover:bg-sky-100'
@@ -65,7 +65,7 @@ export default function DashboardPage() {
               </button>
               <button
                 onClick={() => setActiveTab('analytics')}
-                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                className={`inline-flex min-h-10 min-w-[9.5rem] items-center justify-center gap-2 rounded-full border text-sm font-medium transition-colors sm:min-w-[11rem] ${
                   activeTab === 'analytics'
                     ? 'border-sky-500/40 bg-gradient-to-r from-sky-500 to-cyan-500 text-white shadow-sm'
                     : 'border-sky-200/70 bg-sky-50/80 text-sky-800 hover:border-sky-300 hover:bg-sky-100'
@@ -80,16 +80,16 @@ export default function DashboardPage() {
 
         <main className="w-full px-8 py-6 sm:px-10 lg:px-16 xl:px-24">
           {activeTab === 'board' ? (
-            <div className="rounded-3xl border border-sky-200/70 bg-gradient-to-br from-sky-50/90 via-cyan-50/85 to-emerald-50/85 p-4 shadow-[0_14px_34px_rgba(2,132,199,0.14)] backdrop-blur sm:p-6">
+            <div className="rounded-2xl border border-sky-200/70 bg-gradient-to-br from-sky-50/90 via-cyan-50/85 to-emerald-50/85 p-4 shadow-[0_14px_34px_rgba(2,132,199,0.14)] backdrop-blur sm:p-6">
               <KanbanBoard />
             </div>
           ) : (
-            <div className="rounded-3xl border border-sky-200/70 bg-gradient-to-br from-sky-50/95 to-cyan-50/85 p-8 shadow-[0_14px_34px_rgba(2,132,199,0.14)]">
+            <div className="rounded-2xl border border-sky-200/70 bg-gradient-to-br from-sky-50/95 to-cyan-50/85 p-8 shadow-[0_14px_34px_rgba(2,132,199,0.14)]">
               <h2 className="text-2xl font-semibold text-slate-900">Analytics Dashboard</h2>
               <p className="mt-2 max-w-2xl text-sm text-slate-500">
                 Performance trends and milestone tracking will appear here.
               </p>
-              <div className="mt-8 rounded-2xl border border-dashed border-sky-200 bg-sky-50/70 p-10 text-center">
+              <div className="mt-8 rounded-lg border border-dashed border-sky-200 bg-sky-50/70 p-10 text-center">
                 <p className="text-lg font-medium text-sky-800">Analytics modules are coming soon</p>
                 <p className="mt-2 text-sm text-sky-700/80">
                   You&apos;ll be able to review completion rate, study streaks, and XP progression.
