@@ -28,7 +28,7 @@ export default function TaskCard({ task, isDragging = false }: TaskCardProps) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isSortableDragging ? 0.5 : 1,
+    opacity: isSortableDragging ? 0.45 : 1,
   };
 
   const formatDate = (dateString?: string) => {
@@ -48,25 +48,28 @@ export default function TaskCard({ task, isDragging = false }: TaskCardProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`bg-white rounded-lg p-4 shadow-sm border border-gray-200 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${
-        isDragging ? 'rotate-3 shadow-xl' : ''
+      className={`cursor-grab rounded-2xl border border-sky-100/80 bg-gradient-to-br from-sky-50 to-cyan-50 p-4 shadow-[0_4px_12px_rgba(15,23,42,0.08)] transition-all duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-[0_8px_18px_rgba(2,132,199,0.15)] ${
+        isDragging ? 'rotate-2 border-sky-200 shadow-[0_14px_30px_rgba(2,132,199,0.20)]' : ''
       }`}
     >
-      <h4 className="font-medium text-gray-900 mb-2">{task.title}</h4>
-      <p className="text-sm text-gray-600 mb-3">{task.description}</p>
+      <div className="mb-3 h-1.5 w-16 rounded-full bg-gradient-to-r from-sky-400 via-cyan-400 to-emerald-400" />
+      <h4 className="mb-2 text-sm font-semibold leading-snug text-slate-900 sm:text-base">{task.title}</h4>
+      <p className="mb-4 text-sm text-slate-600">{task.description}</p>
 
-      <div className="flex items-center justify-between text-sm">
+      <div className="flex items-center justify-between border-t border-sky-100/80 pt-3 text-xs font-medium sm:text-sm">
         {task.dueDate && (
-          <div className={`flex items-center gap-1 ${
-            isOverdue(task.dueDate) ? 'text-red-600' : 'text-gray-500'
+          <div className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 ${
+            isOverdue(task.dueDate)
+              ? 'bg-rose-100 text-rose-700'
+              : 'bg-cyan-100 text-cyan-800'
           }`}>
-            <Calendar className="w-4 h-4" />
+            <Calendar className="h-3.5 w-3.5" />
             <span>{formatDate(task.dueDate)}</span>
           </div>
         )}
 
-        <div className="flex items-center gap-1 text-yellow-600">
-          <Star className="w-4 h-4 fill-current" />
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-100 to-yellow-100 px-2.5 py-1 text-amber-800">
+          <Star className="h-3.5 w-3.5 fill-current" />
           <span className="font-medium">{task.xp} XP</span>
         </div>
       </div>
