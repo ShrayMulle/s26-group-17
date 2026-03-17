@@ -47,7 +47,7 @@ export default function LoginPage() {
 
           {/* Auth container */}
           <div className="w-full max-w-md m-10">
-            <div className="rounded-2xl m-4 border border-sky-200/70 bg-gradient-to-br from-sky-50/95 via-cyan-50/90 to-emerald-50/85 p-8 shadow-[0_14px_34px_rgba(2,132,199,0.14)] backdrop-blur">
+            <div className="rounded-2xl border border-sky-200/70 bg-gradient-to-br from-sky-50/95 via-cyan-50/90 to-emerald-50/85 p-8 shadow-[0_14px_34px_rgba(2,132,199,0.14)] backdrop-blur">
               <div className="mb-6">
                 <h2 className="text-center text-xl font-semibold text-slate-900">Welcome back</h2>
                 <p className="mt-2 text-center text-sm text-slate-500">Sign in to your account to continue</p>
