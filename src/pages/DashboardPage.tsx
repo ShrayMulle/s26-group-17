@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { BarChart3, GraduationCap, LayoutList, LogOut } from 'lucide-react';
 import KanbanBoard from '../components/board/KanbanBoard';
 import Button from '../components/ui/Button';
+import { supabase } from '../lib/supabase';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'board' | 'analytics'>('board');
 
   const handleLogout = () => {
+    supabase.auth.signOut()
     navigate('/login');
   };
 
