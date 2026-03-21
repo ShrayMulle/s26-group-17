@@ -1,4 +1,4 @@
-import { X, Calendar, Star } from 'lucide-react';
+import { X } from 'lucide-react';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 
