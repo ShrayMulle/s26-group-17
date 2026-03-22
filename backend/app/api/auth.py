@@ -59,3 +59,25 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise HTTPException(status_code=404, detail="User not found")
     
     return user
+
+
+@router.post("/ai/generate")
+async def generate_notes(request: dict, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    import httpx
+    import os
+    
+    response = httpx.post(
+        "https://api.anthropic.com/v1/messages",
+        headers={
+            "x-api-key": os.getenv("ANTHROPIC_API_KEY"),
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+        },
+        json={
+            "model": "claude-sonnet-4-6",
+            "max_tokens": 1000,
+            "messages": [{"role": "user", "content": request["prompt"]}],
+        },
+        timeout=30,
+    )
+    return response.json()

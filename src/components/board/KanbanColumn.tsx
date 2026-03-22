@@ -18,64 +18,57 @@ interface Column {
 
 interface KanbanColumnProps {
   column: Column;
+  onDeleteTask?: (id: string) => void;
 }
 
-export default function KanbanColumn({ column }: KanbanColumnProps) {
-  const { setNodeRef } = useDroppable({
-    id: column.id,
-  });
+const columnStyles: Record<string, { header: string; badge: string; empty: string }> = {
+  todo: {
+    header: 'text-sky-700',
+    badge: 'bg-sky-100 text-sky-700',
+    empty: 'text-sky-400 border-sky-200',
+  },
+  in_progress: {
+    header: 'text-amber-700',
+    badge: 'bg-amber-100 text-amber-700',
+    empty: 'text-slate-400 border-slate-200',
+  },
+  done: {
+    header: 'text-emerald-700',
+    badge: 'bg-emerald-100 text-emerald-700',
+    empty: 'text-emerald-400 border-emerald-200',
+  },
+};
 
-  const taskIds = column.tasks.map(task => task.id);
-  const columnTheme = {
-    todo: {
-      container: 'border-sky-200/80 bg-sky-100/70',
-      header: 'border-sky-200/70 bg-gradient-to-r from-sky-200/85 to-cyan-200/75',
-      title: 'text-sky-800',
-      count: 'border border-sky-200 bg-sky-50 text-sky-700',
-      empty: 'border-sky-300/80 bg-sky-50/80 text-sky-600',
-    },
-    'in-progress': {
-      container: 'border-amber-200/80 bg-amber-100/70',
-      header: 'border-amber-200/70 bg-gradient-to-r from-amber-200/85 to-orange-200/75',
-      title: 'text-amber-800',
-      count: 'border border-amber-200 bg-amber-50 text-amber-700',
-      empty: 'border-amber-300/80 bg-amber-50/80 text-amber-600',
-    },
-    done: {
-      container: 'border-emerald-200/80 bg-emerald-100/70',
-      header: 'border-emerald-200/70 bg-gradient-to-r from-emerald-200/85 to-teal-200/75',
-      title: 'text-emerald-800',
-      count: 'border border-emerald-200 bg-emerald-50 text-emerald-700',
-      empty: 'border-emerald-300/80 bg-emerald-50/80 text-emerald-600',
-    },
-  } as const;
-
-  const theme = columnTheme[column.id as keyof typeof columnTheme] || {
-    container: 'border-slate-200/80 bg-slate-100/65',
-    header: 'border-slate-200/70 bg-slate-200/70',
-    title: 'text-slate-700',
-    count: 'border border-slate-200/80 bg-slate-50 text-slate-600',
-    empty: 'border-slate-300/80 bg-slate-50/75 text-slate-500',
-  };
+export default function KanbanColumn({ column, onDeleteTask }: KanbanColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({ id: column.id });
+  const styles = columnStyles[column.id] ?? columnStyles['todo'];
 
   return (
-    <div className={`flex h-full min-h-[30rem] min-w-[18rem] flex-col rounded-lg border shadow-sm ${theme.container}`}>
-      <div className={`flex items-center justify-between border-b px-4 py-3 ${theme.header}`}>
-        <h3 className={`text-sm font-semibold uppercase tracking-[0.12em] ${theme.title}`}>{column.title}</h3>
-        <span className={`inline-flex min-w-[3rem] items-center justify-center rounded-full pl-4 pr-4 py-1 text-xs font-semibold ${theme.count}`}>
+    <div
+      ref={setNodeRef}
+      className={`flex flex-col rounded-xl border px-3 py-3 transition-colors ${
+        isOver ? 'border-sky-300 bg-sky-50/60' : 'border-transparent bg-transparent'
+      }`}
+    >
+      <div className="mb-3 flex items-center justify-between px-1">
+        <h3 className={`text-xs font-bold uppercase tracking-widest ${styles.header}`}>
+          {column.title}
+        </h3>
+        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${styles.badge}`}>
           {column.tasks.length}
         </span>
       </div>
 
-      <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
-        <div ref={setNodeRef} className="flex flex-1 flex-col gap-3 p-4">
-          {column.tasks.map(task => (
-            <TaskCard key={task.id} task={task} />
-          ))}
-          {column.tasks.length === 0 && (
-            <div className={`mt-1 flex flex-1 items-center justify-center rounded-md border border-dashed px-4 py-8 text-center text-sm ${theme.empty}`}>
+      <SortableContext items={column.tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+        <div className="flex flex-col gap-3 flex-1">
+          {column.tasks.length === 0 ? (
+            <div className={`flex flex-1 min-h-[8rem] items-center justify-center rounded-lg border border-dashed text-sm ${styles.empty}`}>
               Drop tasks in this column
             </div>
+          ) : (
+            column.tasks.map(task => (
+              <TaskCard key={task.id} task={task} onDelete={onDeleteTask} />
+            ))
           )}
         </div>
       </SortableContext>
