@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import auth
 from app.api.boards import router as boards_router, cards_router
 from app.core.database import engine, Base
+from app.core.websocket import manager
 from app.models import user, board, card
 
 Base.metadata.create_all(bind=engine)
@@ -20,6 +21,15 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(boards_router)
 app.include_router(cards_router)
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 
 @app.get("/")
 def root():

@@ -6,8 +6,12 @@ from app.core.database import get_db
 from app.core.security import decode_access_token
 from app.models.user import User
 from app.models.board import Board
+from app.models.user import User as UserModel
 from app.models.card import Card
 from app.schemas.board import BoardCreate, BoardResponse, CardCreate, CardUpdate, CardMove, CardResponse
+
+from app.core.websocket import manager
+import asyncio
 
 router = APIRouter(prefix="/boards", tags=["boards"])
 cards_router = APIRouter(prefix="/cards", tags=["cards"])
@@ -34,6 +38,23 @@ def create_board(board_data: BoardCreate, current_user: User = Depends(get_curre
     db.refresh(board)
     return board
 
+@router.get("/leaderboard")
+def get_leaderboard(db: Session = Depends(get_db)):
+    """Get all users ranked by XP"""
+    users = db.query(UserModel).all()
+    leaderboard = []
+    for user in users:
+        boards = db.query(Board).filter(Board.user_id == user.id).all()
+        total_xp = 0
+        total_done = 0
+        for board in boards:
+            done_cards = db.query(Card).filter(Card.board_id == board.id, Card.column == "done").all()
+            total_xp += sum(c.xp_value for c in done_cards)
+            total_done += len(done_cards)
+        leaderboard.append({"id": user.id, "name": user.name, "xp": total_xp, "completed": total_done})
+    leaderboard.sort(key=lambda x: x["xp"], reverse=True)
+    return leaderboard
+
 @router.get("/{board_id}", response_model=BoardResponse)
 def get_board(board_id: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     board = db.query(Board).filter(Board.id == board_id, Board.user_id == current_user.id).first()
@@ -57,7 +78,7 @@ def get_cards(board_id: str, current_user: User = Depends(get_current_user), db:
     return db.query(Card).filter(Card.board_id == board_id).order_by(Card.position).all()
 
 @cards_router.post("", response_model=CardResponse, status_code=status.HTTP_201_CREATED)
-def create_card(card_data: CardCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def create_card(card_data: CardCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     board = db.query(Board).filter(Board.id == card_data.board_id, Board.user_id == current_user.id).first()
     if not board:
         raise HTTPException(status_code=404, detail="Board not found")
@@ -65,10 +86,11 @@ def create_card(card_data: CardCreate, current_user: User = Depends(get_current_
     db.add(card)
     db.commit()
     db.refresh(card)
+    asyncio.create_task(manager.broadcast({"type": "card_created", "board_id": card.board_id}))
     return card
 
 @cards_router.put("/{card_id}", response_model=CardResponse)
-def update_card(card_id: str, card_data: CardUpdate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def update_card(card_id: str, card_data: CardUpdate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     card = db.query(Card).join(Board).filter(Card.id == card_id, Board.user_id == current_user.id).first()
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
@@ -79,15 +101,17 @@ def update_card(card_id: str, card_data: CardUpdate, current_user: User = Depend
     return card
 
 @cards_router.delete("/{card_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_card(card_id: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def delete_card(card_id: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     card = db.query(Card).join(Board).filter(Card.id == card_id, Board.user_id == current_user.id).first()
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
+    board_id = card.board_id
     db.delete(card)
     db.commit()
+    asyncio.create_task(manager.broadcast({"type": "card_deleted", "board_id": board_id}))
 
 @cards_router.patch("/{card_id}/move", response_model=CardResponse)
-def move_card(card_id: str, move_data: CardMove, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def move_card(card_id: str, move_data: CardMove, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     card = db.query(Card).join(Board).filter(Card.id == card_id, Board.user_id == current_user.id).first()
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
@@ -95,4 +119,33 @@ def move_card(card_id: str, move_data: CardMove, current_user: User = Depends(ge
     card.position = move_data.position
     db.commit()
     db.refresh(card)
+    asyncio.create_task(manager.broadcast({"type": "card_moved", "board_id": card.board_id}))
     return card
+
+
+from app.models.user import User as UserModel
+
+@router.get("/leaderboard")
+def get_leaderboard(db: Session = Depends(get_db)):
+    """Get all users ranked by XP (cards in done column)"""
+    users = db.query(UserModel).all()
+    leaderboard = []
+    for user in users:
+        boards = db.query(Board).filter(Board.user_id == user.id).all()
+        total_xp = 0
+        total_done = 0
+        for board in boards:
+            done_cards = db.query(Card).filter(
+                Card.board_id == board.id,
+                Card.column == 'done'
+            ).all()
+            total_xp += sum(c.xp_value for c in done_cards)
+            total_done += len(done_cards)
+        leaderboard.append({
+            "id": user.id,
+            "name": user.name,
+            "xp": total_xp,
+            "completed": total_done,
+        })
+    leaderboard.sort(key=lambda x: x["xp"], reverse=True)
+    return leaderboard

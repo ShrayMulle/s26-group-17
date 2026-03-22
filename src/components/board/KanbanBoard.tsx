@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -94,6 +94,44 @@ export default function KanbanBoard({ onXpChange }: KanbanBoardProps) {
     init();
   }, []);
 
+
+  // Real-time sync via WebSocket
+  const isSelfAction = React.useRef(false);
+  useEffect(() => {
+    if (!boardId) return;
+    let ws: WebSocket;
+    let reconnectTimer: any;
+    const connect = () => {
+      ws = new WebSocket('ws://localhost:8000/ws');
+      ws.onmessage = (event) => {
+        if (isSelfAction.current) return;
+        const data = JSON.parse(event.data);
+        if (data.board_id === boardId) {
+          api.getCards(boardId).then((cards: any[]) => {
+            const newCols: Column[] = [
+              { id: 'todo', title: 'To Do', tasks: [] },
+              { id: 'in_progress', title: 'In Progress', tasks: [] },
+              { id: 'done', title: 'Done', tasks: [] },
+            ];
+            cards.forEach((c: any) => {
+              const col = newCols.find(col => col.id === c.column);
+              if (col) col.tasks.push({
+                id: c.id, title: c.title,
+                description: c.description || '',
+                dueDate: c.due_date?.split('T')[0],
+                xp: c.xp_value,
+              });
+            });
+            setColumns(newCols);
+            onXpChange?.(calcXp(newCols), calcStats(newCols));
+          });
+        }
+      };
+      ws.onclose = () => { reconnectTimer = setTimeout(connect, 3000); };
+    };
+    connect();
+    return () => { ws?.close(); clearTimeout(reconnectTimer); };
+  }, [boardId]);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   );
@@ -131,6 +169,8 @@ export default function KanbanBoard({ onXpChange }: KanbanBoardProps) {
     setColumns(newCols);
     onXpChange?.(calcXp(newCols), calcStats(newCols));
 
+    isSelfAction.current = true;
+    setTimeout(() => { isSelfAction.current = false; }, 2000);
     try {
       await api.moveCard(activeTaskId, { column: destColumn.id, position: destColumn.tasks.length });
     } catch (err) {
@@ -140,6 +180,8 @@ export default function KanbanBoard({ onXpChange }: KanbanBoardProps) {
 
   const handleCreateTask = async (taskData: NewTaskInput) => {
     if (!boardId) return;
+    isSelfAction.current = true;
+    setTimeout(() => { isSelfAction.current = false; }, 2000);
     try {
       const card = await api.createCard({
         board_id: boardId,

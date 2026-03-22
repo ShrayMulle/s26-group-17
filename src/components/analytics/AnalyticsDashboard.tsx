@@ -1,5 +1,6 @@
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Star, CheckCircle, Clock, ListTodo, TrendingUp } from 'lucide-react';
+import { Star, CheckCircle, ListTodo, TrendingUp } from 'lucide-react';
+import Leaderboard from './Leaderboard';
 
 interface Props {
   totalXp: number;
@@ -131,6 +132,7 @@ export default function AnalyticsDashboard({ totalXp, level, boardStats, userNam
         </div>
         <p className="mt-2 text-xs text-amber-600">Complete tasks and move them to Done to earn XP!</p>
       </div>
+      <Leaderboard />
     </div>
   );
 }
