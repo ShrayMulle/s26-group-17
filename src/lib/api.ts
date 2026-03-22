@@ -32,6 +32,7 @@ export const api = {
   deleteCard: (cardId: string) =>
     request(`/cards/${cardId}`, { method: 'DELETE' }),
   getLeaderboard: () => request('/boards/leaderboard'),
+  deleteBoard: (boardId: string) => request(`/boards/${boardId}`, { method: 'DELETE' }),
   moveCard: (cardId: string, data: { column: string; position: number }) =>
     request(`/cards/${cardId}/move`, { method: 'PATCH', body: JSON.stringify(data) }),
 };

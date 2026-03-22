@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart3, GraduationCap, LayoutList, LogOut } from 'lucide-react';
 import KanbanBoard from '../components/board/KanbanBoard';
@@ -14,6 +14,16 @@ export default function DashboardPage() {
   const [totalXp, setTotalXp] = useState(0);
   const [boardStats, setBoardStats] = useState({ todo: 0, in_progress: 0, done: 0, totalTasks: 0 });
   const level = Math.floor(totalXp / 100) + 1;
+  const [showLevelUp, setShowLevelUp] = useState(false);
+  const prevLevelRef = useRef(level);
+
+  useEffect(() => {
+    if (level > prevLevelRef.current) {
+      setShowLevelUp(true);
+      setTimeout(() => setShowLevelUp(false), 3000);
+    }
+    prevLevelRef.current = level;
+  }, [level]);
 
   useEffect(() => {
     api.getMe().then((user: any) => setUserName(user.name)).catch(() => {
@@ -37,7 +47,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="relative isolate min-h-screen overflow-hidden bg-gradient-to-br from-sky-200 via-cyan-100 to-emerald-100 text-slate-900">
+    <div className={`relative isolate min-h-screen overflow-hidden text-slate-900 transition-all duration-1000 ${totalXp === 0 ? "bg-gradient-to-br from-sky-200 via-cyan-100 to-emerald-100" : totalXp < 50 ? "bg-gradient-to-br from-cyan-200 via-teal-100 to-emerald-200" : totalXp < 100 ? "bg-gradient-to-br from-violet-200 via-purple-100 to-pink-100" : "bg-gradient-to-br from-amber-200 via-orange-100 to-rose-100"}`}>
       <div className="pointer-events-none absolute -left-20 -top-24 h-80 w-80 rounded-full bg-sky-400/35 blur-3xl" />
       <div className="pointer-events-none absolute -right-24 top-24 h-72 w-72 rounded-full bg-emerald-300/35 blur-3xl" />
       <div className="pointer-events-none absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-amber-300/25 blur-3xl" />
@@ -90,6 +100,18 @@ export default function DashboardPage() {
           )}
         </main>
       </div>
+      {/* Level up notification */}
+      {showLevelUp && (
+        <div className="fixed bottom-6 right-6 z-50 animate-bounce rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-400 to-yellow-400 px-6 py-4 shadow-2xl">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">🎉</span>
+            <div>
+              <p className="font-bold text-white text-lg">Level Up!</p>
+              <p className="text-amber-100 text-sm">You reached Level {level}!</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

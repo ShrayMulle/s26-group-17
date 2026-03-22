@@ -19,6 +19,7 @@ interface Column {
 interface KanbanColumnProps {
   column: Column;
   onDeleteTask?: (id: string) => void;
+  onUpdateTask?: (id: string, updates: any) => void;
 }
 
 const columnStyles: Record<string, { header: string; badge: string; empty: string }> = {
@@ -39,7 +40,7 @@ const columnStyles: Record<string, { header: string; badge: string; empty: strin
   },
 };
 
-export default function KanbanColumn({ column, onDeleteTask }: KanbanColumnProps) {
+export default function KanbanColumn({ column, onDeleteTask, onUpdateTask }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
   const styles = columnStyles[column.id] ?? columnStyles['todo'];
 
@@ -67,7 +68,7 @@ export default function KanbanColumn({ column, onDeleteTask }: KanbanColumnProps
             </div>
           ) : (
             column.tasks.map(task => (
-              <TaskCard key={task.id} task={task} onDelete={onDeleteTask} />
+              <TaskCard key={task.id} task={task} onDelete={onDeleteTask} onUpdate={onUpdateTask} />
             ))
           )}
         </div>
