@@ -81,3 +81,24 @@ async def generate_notes(request: dict, current_user: User = Depends(get_current
         timeout=30,
     )
     return response.json()
+
+
+@router.get("/nu/courses")
+async def search_neu_courses(subject: str, course_number: str = "", term: str = "202630"):
+    import httpx
+    async with httpx.AsyncClient(follow_redirects=True) as client:
+        # Step 1: declare term to get session cookies
+        await client.post(
+            "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/term/search?mode=search",
+            data={"term": term},
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+        # Step 2: search with same session (cookies persist)
+        url = f"https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults?txt_subject={subject.upper()}&txt_term={term}&startDatepicker=&endDatepicker=&pageOffset=0&pageMaxSize=500&sortColumn=subjectDescription&sortDirection=asc"
+        res = await client.get(url)
+        data = res.json()
+        # Filter by course number client-side since Banner ignores txt_courseNumber
+        if course_number and data.get("data"):
+            data["data"] = [c for c in data["data"] if str(c.get("courseNumber", "")).startswith(str(course_number))]
+            data["totalCount"] = len(data["data"])
+        return data

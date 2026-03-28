@@ -85,3 +85,8 @@ Visit **http://localhost:5173** and sign up!
 - **Sammy** — Login UI, Supabase Auth
 - **Sean** — Frontend components
 
+What we can do next is implement the Nubanner ApI- with said things implemented: 
+List Semesters
+Search for Semesters
+Reset data form
+Restrictions

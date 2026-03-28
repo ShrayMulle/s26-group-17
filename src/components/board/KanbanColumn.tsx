@@ -1,5 +1,6 @@
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { Plus } from 'lucide-react';
 import TaskCard from './TaskCard';
 
 interface Task {
@@ -20,50 +21,39 @@ interface KanbanColumnProps {
   column: Column;
   onDeleteTask?: (id: string) => void;
   onUpdateTask?: (id: string, updates: any) => void;
+  onAddTask?: (columnId: string) => void;
 }
 
-const columnStyles: Record<string, { header: string; badge: string; empty: string }> = {
-  todo: {
-    header: 'text-sky-700',
-    badge: 'bg-sky-100 text-sky-700',
-    empty: 'text-sky-400 border-sky-200',
-  },
-  in_progress: {
-    header: 'text-amber-700',
-    badge: 'bg-amber-100 text-amber-700',
-    empty: 'text-slate-400 border-slate-200',
-  },
-  done: {
-    header: 'text-emerald-700',
-    badge: 'bg-emerald-100 text-emerald-700',
-    empty: 'text-emerald-400 border-emerald-200',
-  },
-};
-
-export default function KanbanColumn({ column, onDeleteTask, onUpdateTask }: KanbanColumnProps) {
-  const { setNodeRef, isOver } = useDroppable({ id: column.id });
-  const styles = columnStyles[column.id] ?? columnStyles['todo'];
+export default function KanbanColumn({ column, onDeleteTask, onUpdateTask, onAddTask }: KanbanColumnProps) {
+  const { setNodeRef } = useDroppable({ id: column.id });
 
   return (
     <div
       ref={setNodeRef}
-      className={`flex flex-col rounded-xl border px-3 py-3 transition-colors ${
-        isOver ? 'border-sky-300 bg-sky-50/60' : 'border-transparent bg-transparent'
-      }`}
+      className="h-full rounded-xl bg-gray-200/75 p-4 shadow-sm dark:bg-gray-800"
     >
-      <div className="mb-3 flex items-center justify-between px-1">
-        <h3 className={`text-xs font-bold uppercase tracking-widest ${styles.header}`}>
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-800 dark:text-gray-100">
           {column.title}
         </h3>
-        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${styles.badge}`}>
+        <span className="rounded-full bg-gray-300 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
           {column.tasks.length}
         </span>
       </div>
 
+      <button
+        type="button"
+        onClick={() => onAddTask?.(column.id)}
+        className="mb-3 inline-flex items-center gap-1 rounded-md border border-gray-400 bg-gray-100 px-2.5 py-1.5 text-xs font-medium text-gray-800 hover:bg-white dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+      >
+        <Plus className="h-3.5 w-3.5" />
+        Add Task
+      </button>
+
       <SortableContext items={column.tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
-        <div className="flex flex-col gap-3 flex-1">
+        <div className="flex flex-col gap-2">
           {column.tasks.length === 0 ? (
-            <div className={`flex flex-1 min-h-[8rem] items-center justify-center rounded-lg border border-dashed text-sm ${styles.empty}`}>
+            <div className="rounded-md border border-dashed border-gray-400 bg-gray-100/60 px-3 py-4 text-center text-xs text-gray-600 dark:border-gray-600 dark:bg-gray-700/60 dark:text-gray-300">
               Drop tasks in this column
             </div>
           ) : (

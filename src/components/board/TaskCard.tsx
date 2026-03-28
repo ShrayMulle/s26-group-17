@@ -90,50 +90,44 @@ export default function TaskCard({ task, isDragging = false, onDelete, onUpdate 
 
   if (isEditing) {
     return (
-      <div className="rounded-lg border border-sky-300 bg-white p-4 shadow-lg">
-        <div className="mb-3 h-1.5 w-16 rounded-full bg-gradient-to-r from-sky-400 via-cyan-400 to-emerald-400" />
+      <div>
+        <div />
         <input
           value={editTitle}
           onChange={e => setEditTitle(e.target.value)}
-          className="mb-2 w-full rounded border border-sky-200 px-2 py-1 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-sky-400"
           placeholder="Task title"
         />
         <textarea
           value={editDesc}
           onChange={e => setEditDesc(e.target.value)}
-          className="mb-2 w-full resize-none rounded border border-sky-200 px-2 py-1 text-sm text-slate-600 focus:outline-none focus:ring-1 focus:ring-sky-400"
           rows={2}
           placeholder="Description"
         />
-        <div className="flex gap-2 mb-3">
-          <div className="flex-1">
-            <label className="text-xs text-slate-500 mb-1 block">Due Date</label>
+        <div>
+          <div>
+            <label>Due Date</label>
             <input
               type="date"
               value={editDue}
               onChange={e => setEditDue(e.target.value)}
-              className="w-full rounded border border-sky-200 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-sky-400"
             />
           </div>
-          <div className="w-24">
-            <label className="text-xs text-slate-500 mb-1 block">XP Value</label>
+          <div>
+            <label>XP Value</label>
             <input
               type="number"
               value={editXp}
               onChange={e => setEditXp(Number(e.target.value))}
-              className="w-full rounded border border-sky-200 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-sky-400"
               min={1}
             />
           </div>
         </div>
-        <div className="flex gap-2">
-          <button onPointerDown={e => e.stopPropagation()} onClick={handleSave}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-sky-500 py-1.5 text-xs font-medium text-white hover:bg-sky-600">
-            <Check className="h-3.5 w-3.5" /> Save
+        <div>
+          <button onPointerDown={e => e.stopPropagation()} onClick={handleSave}>
+            <Check /> Save
           </button>
-          <button onPointerDown={e => e.stopPropagation()} onClick={handleCancel}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
-            <X className="h-3.5 w-3.5" /> Cancel
+          <button onPointerDown={e => e.stopPropagation()} onClick={handleCancel}>
+            <X /> Cancel
           </button>
         </div>
       </div>
@@ -146,44 +140,37 @@ export default function TaskCard({ task, isDragging = false, onDelete, onUpdate 
       style={style}
       {...attributes}
       {...listeners}
-      className={`group relative cursor-grab rounded-lg border border-sky-100/80 bg-gradient-to-br from-sky-50 to-cyan-50 p-4 shadow-[0_4px_12px_rgba(15,23,42,0.08)] transition-all duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-[0_8px_18px_rgba(2,132,199,0.15)] ${
-        isDragging ? 'rotate-2 border-sky-200 shadow-[0_14px_30px_rgba(2,132,199,0.20)]' : ''
-      }`}
     >
       {/* Action buttons */}
-      <div className="absolute right-2 top-2 hidden gap-1 group-hover:flex">
+      <div>
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={handleEdit}
-          className="rounded-md p-1 text-slate-400 transition-colors hover:bg-sky-100 hover:text-sky-600"
         >
-          <Pencil className="h-3.5 w-3.5" />
+          <Pencil />
         </button>
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={handleDelete}
-          className="rounded-md p-1 text-slate-400 transition-colors hover:bg-rose-100 hover:text-rose-600"
         >
-          <Trash2 className="h-3.5 w-3.5" />
+          <Trash2 />
         </button>
       </div>
 
-      <div className="mb-3 h-1.5 w-16 rounded-full bg-gradient-to-r from-sky-400 via-cyan-400 to-emerald-400" />
-      <h4 className="mb-2 text-sm font-semibold leading-snug text-slate-900 sm:text-base">{task.title}</h4>
-      <p className="mb-4 text-sm text-slate-600">{task.description}</p>
+      <div />
+      <h4>{task.title}</h4>
+      <p>{task.description}</p>
 
-      <div className="flex items-center justify-between border-t border-sky-100/80 pt-3 text-xs font-medium sm:text-sm">
+      <div>
         {task.dueDate && (
-          <div className={`inline-flex min-w-[5rem] items-center justify-center gap-1.5 rounded-full py-1 whitespace-nowrap ${
-            isOverdue(task.dueDate) ? 'bg-rose-100 text-rose-700' : 'bg-cyan-100 text-cyan-800'
-          }`}>
-            <Calendar className="h-3.5 w-3.5" />
+          <div>
+            <Calendar />
             <span>{formatDate(task.dueDate)}</span>
           </div>
         )}
-        <div className="inline-flex min-w-[5rem] items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-amber-100 to-yellow-100 py-1 whitespace-nowrap text-amber-800">
-          <Star className="h-3.5 w-3.5 fill-current" />
-          <span className="font-medium">{task.xp} XP</span>
+        <div>
+          <Star />
+          <span>{task.xp} XP</span>
         </div>
       </div>
     </div>

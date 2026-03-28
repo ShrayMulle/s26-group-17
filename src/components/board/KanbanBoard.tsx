@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   DndContext, DragOverlay, closestCenter, PointerSensor, useSensor, useSensors,
 } from '@dnd-kit/core';
 import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core';
-import AddTaskModal, { type NewTaskInput } from './AddTaskModal';
+import AddTaskModal, { type NewTaskInput } from './AddTaskModal.tsx';
 import KanbanColumn from './KanbanColumn';
 import TaskCard from './TaskCard';
-import Button from '../ui/Button';
-import { Plus, BookOpen, ChevronDown, Trash2 } from 'lucide-react';
+import { ChevronDown, Trash2, Search } from 'lucide-react';
 import { api } from '../../lib/api';
+import CourseSearch from './CourseSearch';
 import confetti from 'canvas-confetti';
 
 interface Task {
@@ -27,12 +27,15 @@ interface KanbanBoardProps {
 export default function KanbanBoard({ onXpChange }: KanbanBoardProps) {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
+  const [createTaskColumnId, setCreateTaskColumnId] = useState<string>('todo');
   const [boards, setBoards] = useState<Board[]>([]);
   const [activeBoardId, setActiveBoardId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showBoardMenu, setShowBoardMenu] = useState(false);
   const [newBoardName, setNewBoardName] = useState('');
   const [showNewBoardInput, setShowNewBoardInput] = useState(false);
+  const [showCourseSearch, setShowCourseSearch] = useState(false);
+  const boardMenuRef = useRef<HTMLDivElement | null>(null);
   const [columns, setColumns] = useState<Column[]>([
     { id: 'todo', title: 'To Do', tasks: [] },
     { id: 'in_progress', title: 'In Progress', tasks: [] },
@@ -97,6 +100,20 @@ export default function KanbanBoard({ onXpChange }: KanbanBoardProps) {
     loadCards(activeBoardId);
   }, [activeBoardId]);
 
+  useEffect(() => {
+    if (!showBoardMenu) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!boardMenuRef.current) return;
+      if (!boardMenuRef.current.contains(event.target as Node)) {
+        setShowBoardMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showBoardMenu]);
+
   // Real-time sync
   const isSelfAction = React.useRef(false);
   useEffect(() => {
@@ -110,7 +127,13 @@ export default function KanbanBoard({ onXpChange }: KanbanBoardProps) {
         const data = JSON.parse(event.data);
         if (data.board_id === activeBoardId) loadCards(activeBoardId);
       };
-      ws.onclose = () => { reconnectTimer = setTimeout(connect, 3000); };
+      let retries = 0;
+      ws.onclose = () => {
+        if (retries < 5) {
+          retries++;
+          reconnectTimer = setTimeout(connect, 5000 * retries);
+        }
+      };
     };
     connect();
     return () => { ws?.close(); clearTimeout(reconnectTimer); };
@@ -185,12 +208,13 @@ export default function KanbanBoard({ onXpChange }: KanbanBoardProps) {
 
   const handleCreateTask = async (taskData: NewTaskInput) => {
     if (!activeBoardId) return;
+    const targetColumn = createTaskColumnId || 'todo';
     isSelfAction.current = true;
     setTimeout(() => { isSelfAction.current = false; }, 2000);
     try {
       const card = await api.createCard({
         board_id: activeBoardId, title: taskData.title, description: taskData.description,
-        column: 'todo', position: 0,
+        column: targetColumn, position: 0,
         due_date: taskData.dueDate ? new Date(taskData.dueDate).toISOString() : null,
         xp_value: taskData.xp,
       });
@@ -198,9 +222,14 @@ export default function KanbanBoard({ onXpChange }: KanbanBoardProps) {
         id: card.id, title: card.title, description: card.description || '',
         dueDate: card.due_date?.split('T')[0], xp: card.xp_value,
       };
-      setColumns(prev => prev.map(col => col.id === 'todo' ? { ...col, tasks: [newTask, ...col.tasks] } : col));
+      setColumns(prev => prev.map(col => col.id === targetColumn ? { ...col, tasks: [newTask, ...col.tasks] } : col));
       setIsCreateTaskOpen(false);
     } catch (err) { console.error('Failed to create card:', err); }
+  };
+
+  const handleAddTaskForColumn = (columnId: string) => {
+    setCreateTaskColumnId(columnId);
+    setIsCreateTaskOpen(true);
   };
 
   const handleUpdateTask = (id: string, updates: any) => {
@@ -217,92 +246,98 @@ export default function KanbanBoard({ onXpChange }: KanbanBoardProps) {
   };
 
   const activeBoard = boards.find(b => b.id === activeBoardId);
-  const totalTasks = columns.reduce((count, col) => count + col.tasks.length, 0);
-  const doneTasks = columns.find(col => col.id === 'done')?.tasks.length ?? 0;
-  const completionRate = totalTasks === 0 ? 0 : Math.round((doneTasks / totalTasks) * 100);
-
-  if (loading) return <div className="flex items-center justify-center p-12 text-slate-500">Loading boards...</div>;
+  if (loading) return <div>Loading boards...</div>;
 
   return (
     <>
-      <div className="space-y-5">
-        <div className="flex flex-col gap-4 rounded-xl border border-sky-200/80 bg-gradient-to-r from-sky-100/85 via-cyan-100/75 to-emerald-100/75 p-4 shadow-[0_8px_22px_rgba(2,132,199,0.10)] sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-sky-700">Course Board</p>
+      <div className="space-y-4 bg-gray-100 p-4 dark:bg-gray-900">
+        <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 rounded-md px-3 py-2 text-2xl font-medium text-gray-800 dark:text-gray-100">
+              <span>{activeBoard?.name ?? 'No Course Selected'}</span>
+            </div>
 
-            {/* Board selector */}
-            <div className="relative mt-1">
+            <div className="relative" ref={boardMenuRef}>
               <button
+                type="button"
                 onClick={() => setShowBoardMenu(!showBoardMenu)}
-                className="flex items-center gap-2 text-xl font-semibold text-slate-900 hover:text-sky-700"
+                className="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
               >
-                <BookOpen className="h-5 w-5 text-sky-500" />
-                {activeBoard?.name ?? 'Select Board'}
-                <ChevronDown className="h-4 w-4 text-slate-400" />
+                Select Course
+                <ChevronDown className="h-4 w-4" />
               </button>
 
               {showBoardMenu && (
-                <div className="absolute left-0 top-full z-50 mt-1 w-72 rounded-xl border border-sky-200 bg-white shadow-lg">
+                <div
+                  className={`absolute left-0 top-full z-50 mt-1 rounded-md border border-gray-200 bg-white p-2 shadow-md dark:border-gray-700 dark:bg-gray-900 ${showNewBoardInput ? 'w-72' : 'w-max min-w-fit'}`}
+                >
                   {boards.map(board => (
-                    <div key={board.id} className="flex items-center justify-between px-4 py-2 hover:bg-sky-50">
+                    <div key={board.id} className="flex items-center justify-between gap-2 rounded-md px-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-800">
                       <button
+                        type="button"
                         onClick={() => { setActiveBoardId(board.id); setShowBoardMenu(false); }}
-                        className={`flex-1 text-left text-sm ${board.id === activeBoardId ? 'font-semibold text-sky-700' : 'text-slate-700'}`}
+                        className={`whitespace-nowrap pr-2 text-left text-sm ${board.id === activeBoardId ? 'font-semibold text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'}`}
                       >
                         {board.name}
                       </button>
                       {boards.length > 1 && (
-                        <button onClick={() => handleDeleteBoard(board.id)} className="text-slate-300 hover:text-rose-500">
-                          <Trash2 className="h-3.5 w-3.5" />
+                        <button type="button" onClick={() => handleDeleteBoard(board.id)} className="text-gray-400 hover:text-red-500">
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       )}
                     </div>
                   ))}
-                  <div className="border-t border-sky-100 px-4 py-2">
+
+                  <div className="mt-2 border-t border-gray-200 pt-2 dark:border-gray-700">
                     {showNewBoardInput ? (
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-2">
                         <input
                           autoFocus
                           value={newBoardName}
                           onChange={e => setNewBoardName(e.target.value)}
                           onKeyDown={e => e.key === 'Enter' && handleCreateBoard()}
                           placeholder="Course name..."
-                          className="flex-1 rounded border border-sky-200 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-sky-400"
+                          className="flex-1 rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-gray-500"
                         />
-                        <button onClick={handleCreateBoard} className="rounded bg-sky-500 px-2 py-1 text-xs text-white hover:bg-sky-600">Add</button>
+                        <button
+                          type="button"
+                          onClick={handleCreateBoard}
+                          className="rounded-md bg-gray-900 px-2 py-1.5 text-xs font-medium text-white hover:bg-gray-800"
+                        >
+                          Add
+                        </button>
                       </div>
                     ) : (
                       <button
-                        onClick={() => setShowNewBoardInput(true)}
-                        className="flex items-center gap-1.5 text-sm text-sky-600 hover:text-sky-800"
+                        type="button"
+                        onClick={() => { setShowCourseSearch(true); setShowBoardMenu(false); }}
+                        className="inline-flex whitespace-nowrap items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
                       >
-                        <Plus className="h-4 w-4" />
-                        New Course Board
+                        <Search className="h-4 w-4" />
+                        Search NEU Courses
                       </button>
                     )}
                   </div>
                 </div>
               )}
             </div>
-
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-700">
-              <span className="inline-flex items-center justify-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-sky-800">{totalTasks} Total Tasks</span>
-              <span className="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-800">{doneTasks} Completed</span>
-              <span className="inline-flex items-center justify-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-800">{completionRate}% Completion</span>
-            </div>
           </div>
-
-          <Button onClick={() => setIsCreateTaskOpen(true)} className="inline-flex min-w-[8rem] items-center justify-center gap-2 px-0 shadow-sm">
-            <Plus className="h-4 w-4" />
-            Add Task
-          </Button>
         </div>
 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <div className="overflow-hidden rounded-xl border border-sky-100/70 bg-gradient-to-r from-sky-100/45 via-cyan-100/35 to-emerald-100/35 py-3">
-            <div className="grid min-h-[30rem] grid-flow-col auto-cols-[minmax(18rem,1fr)] gap-5 overflow-x-auto px-0 pt-1 pb-0">
+          <div className="overflow-x-auto">
+            <div
+              className="grid grid-flow-col auto-cols-[minmax(18rem,1fr)] items-stretch gap-4"
+              style={{ minHeight: 'calc(100vh - 16rem)' }}
+            >
               {columns.map(column => (
-                <KanbanColumn key={column.id} column={column} onDeleteTask={handleDeleteTask} onUpdateTask={handleUpdateTask} />
+                <KanbanColumn
+                  key={column.id}
+                  column={column}
+                  onDeleteTask={handleDeleteTask}
+                  onUpdateTask={handleUpdateTask}
+                  onAddTask={handleAddTaskForColumn}
+                />
               ))}
             </div>
           </div>
@@ -312,6 +347,17 @@ export default function KanbanBoard({ onXpChange }: KanbanBoardProps) {
         </DndContext>
       </div>
 
+      {showCourseSearch && (
+        <CourseSearch
+          onSelectCourse={async (name) => {
+            const board = await api.createBoard({ name, course_name: name });
+            setBoards(prev => [...prev, board]);
+            setActiveBoardId(board.id);
+            setShowCourseSearch(false);
+          }}
+          onClose={() => setShowCourseSearch(false)}
+        />
+      )}
       <AddTaskModal isOpen={isCreateTaskOpen} onClose={() => setIsCreateTaskOpen(false)} onSave={handleCreateTask} />
     </>
   );

@@ -60,34 +60,46 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative isolate min-h-screen overflow-hidden bg-gradient-to-br from-sky-200 via-cyan-100 to-emerald-100 text-slate-900">
-      <div className="pointer-events-none absolute -left-20 -top-24 h-80 w-80 rounded-full bg-sky-400/35 blur-3xl" />
-      <div className="pointer-events-none absolute -right-24 top-24 h-72 w-72 rounded-full bg-emerald-300/35 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-amber-300/25 blur-3xl" />
-
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-12">
-        <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-cyan-500 text-white shadow-sm">
+    <div className="min-h-screen bg-gray-100 px-4 py-10 dark:bg-gray-950">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 lg:flex-row lg:items-stretch">
+        <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-900 lg:w-2/5">
+          <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900">
             <GraduationCap className="h-6 w-6" />
           </div>
-          <div className="text-center">
-            <h1 className="text-3xl font-bold tracking-tight">StudyQuest</h1>
-            <p className="mt-1 text-sm text-slate-600">Course planning workspace</p>
+          <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">StudyQuest</h1>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Course planning workspace</p>
+
+          <div className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Welcome back</h2>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Sign in to your account to continue.</p>
           </div>
         </div>
 
-        <div className="w-full max-w-md m-10">
-          <div className="rounded-2xl border border-sky-200/70 bg-gradient-to-br from-sky-50/95 via-cyan-50/90 to-emerald-50/85 p-8 shadow-[0_14px_34px_rgba(2,132,199,0.14)] backdrop-blur">
-            <div className="mb-6">
-              <h2 className="text-center text-xl font-semibold text-slate-900">Welcome back</h2>
-              <p className="mt-2 text-center text-sm text-slate-500">Sign in to your account to continue</p>
-            </div>
-            <Auth
-              supabaseClient={supabase}
-              appearance={{ theme: ThemeSupa }}
-              providers={[]}
-            />
-          </div>
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900 lg:w-3/5 lg:p-8">
+          <Auth
+            supabaseClient={supabase}
+            appearance={{
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: '#111827',
+                    brandAccent: '#1f2937',
+                    inputBackground: '#f9fafb',
+                    inputBorder: '#d1d5db',
+                    inputText: '#111827',
+                    inputPlaceholder: '#6b7280',
+                  },
+                  radii: {
+                    borderRadiusButton: '0.5rem',
+                    buttonBorderRadius: '0.5rem',
+                    inputBorderRadius: '0.5rem',
+                  },
+                },
+              },
+            }}
+            providers={[]}
+          />
         </div>
       </div>
     </div>
