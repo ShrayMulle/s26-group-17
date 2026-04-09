@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://s26-group-17.onrender.com';
 
 function getToken() {
   return localStorage.getItem('token');

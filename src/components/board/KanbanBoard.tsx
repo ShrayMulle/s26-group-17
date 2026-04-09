@@ -121,7 +121,7 @@ export default function KanbanBoard({ onXpChange }: KanbanBoardProps) {
     let ws: WebSocket;
     let reconnectTimer: any;
     const connect = () => {
-      ws = new WebSocket('ws://localhost:8000/ws');
+      ws = new WebSocket('wss://s26-group-17.onrender.com/ws');
       ws.onmessage = (event) => {
         if (isSelfAction.current) return;
         const data = JSON.parse(event.data);
