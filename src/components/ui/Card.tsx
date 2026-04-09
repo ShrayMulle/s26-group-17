@@ -5,7 +5,7 @@ interface CardProps {
   className?: string;
 }
 
-export default function Card({ children, className = '' }: CardProps) {
+export default function Card({ children = '' }: CardProps) {
   return (
     <div>
       {children}

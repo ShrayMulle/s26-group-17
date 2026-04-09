@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, GraduationCap, LayoutList, LogOut } from 'lucide-react';
 import KanbanBoard from '../components/board/KanbanBoard';
-import Button from '../components/ui/Button';
 import { supabase } from '../lib/supabase';
 import { api } from '../lib/api';
 import AnalyticsDashboard from '../components/analytics/AnalyticsDashboard';
@@ -15,7 +13,6 @@ export default function DashboardPage() {
   const [totalXp, setTotalXp] = useState(0);
   const [boardStats, setBoardStats] = useState({ todo: 0, in_progress: 0, done: 0, totalTasks: 0 });
   const level = Math.floor(totalXp / 100) + 1;
-  const [showLevelUp, setShowLevelUp] = useState(false);
   const prevLevelRef = useRef(level);
 
   useEffect(() => {
