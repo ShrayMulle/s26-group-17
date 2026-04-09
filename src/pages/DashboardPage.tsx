@@ -13,6 +13,7 @@ export default function DashboardPage() {
   const [totalXp, setTotalXp] = useState(0);
   const [boardStats, setBoardStats] = useState({ todo: 0, in_progress: 0, done: 0, totalTasks: 0 });
   const level = Math.floor(totalXp / 100) + 1;
+  const [showLevelUp, setShowLevelUp] = useState(false);
   const prevLevelRef = useRef(level);
 
   useEffect(() => {
