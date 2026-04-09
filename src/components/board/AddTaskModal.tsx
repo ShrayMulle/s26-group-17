@@ -12,7 +12,7 @@ export interface NewTaskInput {
 interface AddTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (task: NewTaskInput) => void;
+  onSave: (task: NewTaskInput) => void | Promise<void>;
 }
 
 interface FormValues {
@@ -38,7 +38,7 @@ const initialValues: FormValues = {
 export default function AddTaskModal({ isOpen, onClose, onSave }: AddTaskModalProps) {
   const [formValues, setFormValues] = useState<FormValues>(initialValues);
   const [errors, setErrors] = useState<FormErrors>({});
-  const canSubmit = formValues.title.trim().length > 0 && formValues.description.trim().length > 0;
+  const canSubmit = formValues.title.trim().length > 0;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -82,7 +82,7 @@ export default function AddTaskModal({ isOpen, onClose, onSave }: AddTaskModalPr
     }
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmedTitle = formValues.title.trim();
@@ -101,7 +101,7 @@ export default function AddTaskModal({ isOpen, onClose, onSave }: AddTaskModalPr
       return;
     }
 
-    onSave({
+    await onSave({
       title: trimmedTitle,
       description: trimmedDescription,
       dueDate: formValues.dueDate || undefined,

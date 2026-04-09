@@ -6,7 +6,7 @@ import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core';
 import AddTaskModal, { type NewTaskInput } from './AddTaskModal.tsx';
 import KanbanColumn from './KanbanColumn';
 import TaskCard from './TaskCard';
-import { ChevronDown, Trash2, Search } from 'lucide-react';
+import { ChevronDown, Trash2, Search, Plus } from 'lucide-react';
 import { api } from '../../lib/api';
 import CourseSearch from './CourseSearch';
 import confetti from 'canvas-confetti';
@@ -308,6 +308,7 @@ export default function KanbanBoard({ onXpChange }: KanbanBoardProps) {
                         </button>
                       </div>
                     ) : (
+                      <>
                       <button
                         type="button"
                         onClick={() => { setShowCourseSearch(true); setShowBoardMenu(false); }}
@@ -316,6 +317,15 @@ export default function KanbanBoard({ onXpChange }: KanbanBoardProps) {
                         <Search className="h-4 w-4" />
                         Search NEU Courses
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowNewBoardInput(true)}
+                        className="inline-flex whitespace-nowrap items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+                      >
+                        <Plus className="h-4 w-4" />
+                        New Board
+                      </button>
+                      </>
                     )}
                   </div>
                 </div>

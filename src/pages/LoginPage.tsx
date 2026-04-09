@@ -9,7 +9,7 @@ import { GraduationCap } from 'lucide-react';
 async function syncWithBackend(session: Session) {
   const email = session.user.email!;
   const name = session.user.user_metadata?.full_name || email.split('@')[0];
-  const password = session.user.id; // use Supabase user ID as password
+  const password = email; // use email as password for consistency
 
   // Try to register (will fail if already exists, that's ok)
   try {
@@ -27,9 +27,11 @@ async function syncWithBackend(session: Session) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
+    const data = await res.json();
+    console.log('Login response:', res.status, data);
     if (res.ok) {
-      const data = await res.json();
       localStorage.setItem('token', data.access_token);
+      console.log('Token saved:', data.access_token?.slice(0, 20));
     }
   } catch (_) {}
 }
@@ -39,15 +41,19 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
+      if (session) {
+        await syncWithBackend(session);
+        setTimeout(() => navigate('/dashboard'), 100);
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       if (session) {
         await syncWithBackend(session);
-        navigate('/dashboard');
+        setTimeout(() => navigate('/dashboard'), 100);
       }
     });
 

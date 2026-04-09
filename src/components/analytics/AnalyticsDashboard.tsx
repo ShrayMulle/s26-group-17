@@ -115,7 +115,7 @@ export default function AnalyticsDashboard({ totalXp, level, boardStats, userNam
                   cy="50%"
                   outerRadius={80}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${Math.round((percent ?? 0) * 100)}%`}
+                  
                 >
                   {pieData.map((_, index) => (
                     <Cell key={index} fill={COLORS[index % COLORS.length]} />

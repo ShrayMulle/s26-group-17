@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: studyquest-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://studyquest_db_e9z5_user:jjycob5C0kofB1LUNQKEts6PPGpvphG6@dpg-d7btl015pdvs73dvp960-a.ohio-postgres.render.com/studyquest_db_e9z5
+      - key: JWT_SECRET
+        value: studyquest-super-secret-key-2026
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
