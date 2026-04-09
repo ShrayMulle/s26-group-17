@@ -39,7 +39,7 @@ export default function CourseSearch({ onSelectCourse, onClose }: CourseSearchPr
         course_number: courseNumber,
         term: TERM,
       });
-      const res = await fetch(`http://localhost:8000/auth/nu/courses?${params}`, {
+      const res = await fetch(`https://s26-group-17.onrender.com/auth/nu/courses?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
