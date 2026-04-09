@@ -13,7 +13,7 @@ async function syncWithBackend(session: Session) {
 
   // Try to register (will fail if already exists, that's ok)
   try {
-    await fetch('http://localhost:8000/auth/register', {
+    await fetch('https://s26-group-17.onrender.com/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, name }),
@@ -22,7 +22,7 @@ async function syncWithBackend(session: Session) {
 
   // Login to get FastAPI JWT token
   try {
-    const res = await fetch('http://localhost:8000/auth/login', {
+    const res = await fetch('https://s26-group-17.onrender.com/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
